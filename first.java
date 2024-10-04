@@ -15,5 +15,6 @@ class Age
 		{
 			System.out.println("You are not eligible");
 		}
+		System.out.println("Program done");
 	}
 }
