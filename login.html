@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Examination</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background: url(sidebar.jpg);
+            color: white;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .sidebar img {
+            width: 100%;
+            height: 100px; 
+            object-fit: fill;
+            background-color: white;
+        }
+
+        .sidebar nav {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            width: 100%;
+        }
+
+        .sidebar a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 25px;
+            width: 90%;
+        }
+
+        .sidebar a:hover {
+            background-color: #34495e;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            background: url(sidebar.jpg);
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            height: 80px;
+        }
+
+        .navbar h1 {
+            margin: 0;
+            font-size: 40px;
+            justify-content: center;
+            align-items: center;
+            margin-left: 450px;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .logout-btn {
+            background-color: #3554dc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-family: 'Playfair Display', serif;
+
+        }
+
+        .logout-btn a {
+            color: white;
+            text-decoration: none;
+            font-size: 17px;
+        }
+
+        .logout-btn a:hover {
+            text-decoration: none;
+        }
+
+        .logout-btn:hover {
+            background-color: #3e8e41;;
+        }
+
+        .content {
+            flex: 1;
+            padding: 15px;
+            background-color: #ecf0f1;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 300px;
+            }
+
+            .sidebar img {
+                object-fit: fill;
+                height: 100px; 
+            }
+
+            .sidebar a {
+                font-size: 16px;
+                padding: 8px 10px;
+            }
+
+            .navbar {
+                height: 70px;
+            }
+
+            .navbar h1 {
+                font-size: 18px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar {
+                width: 150px;
+            }
+
+            .sidebar img {
+                height: auto;
+                max-height: 60px; 
+                object-fit: contain; 
+            }
+
+            .sidebar a {
+                font-size: 14px;
+                padding: 6px 8px;
+            }
+
+            .navbar {
+                max-height: 60px;
+            }
+
+            .navbar h1 {
+                font-size: 16px;
+            }
+
+            .content {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <img src="https://advantosoftware.com/wp-content/uploads/2022/05/logo_landsafe-removebg-preview.png" alt="Logo">
+        <nav>
+            <a href="exam.html">Exam</a>
+            <a href="question.html">Questions</a>
+            <a href="results.html">Results</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="navbar">
+            <h1>Online Examination</h1>
+            <button class="logout-btn"><a href="dashboard.html">Logout</a></button>
+        </div>
+        <div class="content">
+
+        </div>
+    </div>
+</body>
+</html>

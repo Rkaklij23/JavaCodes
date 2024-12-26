@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            background-color: #f4f4f9;
+        }
+        .sidebar {
+            width: 350px;
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: white;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+            width: fit-content;
+        }
+
+        .back-button:hover {
+            background-color: #2980b9;
+        }
+
+        .back-button .arrow {
+            font-size: 1.2rem;
+            margin-right: 5px;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .sidebar li {
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #34495e;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .sidebar li:hover {
+            background-color: #1abc9c;
+        }
+        .main-content {
+            background: url('bg.png') no-repeat center center/cover;
+            flex-grow: 1;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #d72fe777;;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            color: white;
+        }
+        h2 {
+            text-align: center;
+            color: white;
+        }
+        .result {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .pie-chart {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        canvas {
+            width: 300px !important;
+            height: 300px !important;
+        }
+        .download-btn {
+            margin-top: 15px;
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="back-button" onclick="goToLogin()">
+            <span class="arrow">&#8592;</span>
+        </div>
+        <h2>Students</h2>
+        <ul id="studentList"></ul>
+    </div>
+    <div class="main-content">
+        <div class="container">
+            <h2>Student Result</h2>
+
+            <div id="resultSection" class="result">
+                <p id="resultSummary"></p>
+                <div class="pie-chart">
+                    <canvas id="pieChart"></canvas>
+                </div>
+                <div class="download-btn">
+                    <button onclick="downloadResult()">Download Result</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script>
+        function goToLogin() {
+            window.location.href = 'login.html';
+        }
+
+        let students = [];
+        let selectedStudent = null;
+
+        async function fetchStudents() {
+            const response = await fetch('/students');
+            students = await response.json();
+
+            const studentList = document.getElementById('studentList');
+            students.forEach((student, index) => {
+                const listItem = document.createElement('li');
+                listItem.textContent = student.name;
+                listItem.onclick = () => displayStudentResult(student);
+                studentList.appendChild(listItem);
+            });
+
+            // Display the first student's result by default
+            if (students.length > 0) {
+                displayStudentResult(students[0]);
+            }
+        }
+
+        function displayStudentResult(student) {
+            selectedStudent = student;
+            const incorrectAnswers = student.attemptedQuestions - student.correctAnswers;
+            const unattemptedQuestions = student.totalQuestions - student.attemptedQuestions;
+            const obtainedMarks = student.correctAnswers;
+            const passMarks = student.totalMarks * 0.4;
+            const status = obtainedMarks >= passMarks ? "Pass" : "Fail";
+
+            const resultSummary = `
+                Name: ${student.name}<br>
+                Total Questions: ${student.totalQuestions}<br>
+                Attempted Questions: ${student.attemptedQuestions}<br>
+                Correct Answers: ${student.correctAnswers}<br>
+                Incorrect Answers: ${incorrectAnswers}<br>
+                Unattempted Questions: ${unattemptedQuestions}<br>
+                Total Marks: ${student.totalMarks}<br>
+                Obtained Marks: ${obtainedMarks}<br>
+                Status: <strong>${status}</strong>
+            `;
+
+            document.getElementById('resultSummary').innerHTML = resultSummary;
+
+            // Generate Pie Chart
+            const ctx = document.getElementById('pieChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Correct', 'Incorrect', 'Unattempted'],
+                    datasets: [{
+                        data: [student.correctAnswers, incorrectAnswers, unattemptedQuestions],
+                        backgroundColor: ['#4CAF50', '#F44336', '#FFC107']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: "white"
+                            }
+                        }
+                    }
+                }
+
+            });
+        }
+
+        function downloadResult() {
+            const { jsPDF } = window.jspdf;
+            const resultSummary = document.getElementById('resultSummary').innerText;
+            const pdf = new jsPDF();
+
+            pdf.text(resultSummary, 10, 10);
+            pdf.save(`${selectedStudent.name}_result.pdf`);
+        }
+
+        // Load students on page load
+        window.onload = fetchStudents;
+    </script>
+</body>
+</html>

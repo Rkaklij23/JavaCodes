@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Question Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f9;
+        }
+
+        .container-fluid {
+            padding: 0;
+        }
+
+        .sidebar {
+            background-color: #343a40;
+            color: white;
+            height: 100vh;
+            padding-top: 20px;
+            border-right: 2px solid #ddd;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: white;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+            width: fit-content;
+        }
+
+        .back-button:hover {
+            background-color: #2980b9;
+        }
+
+        .sidebar .btn {
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .folder-btn {
+            margin-bottom: 20px;
+        }
+
+        .folder-item {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #495057;
+            color: white;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .folder-item:hover {
+            background-color: #6c757d;
+        }
+
+        .content {
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        .card {
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .question-item {
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+        }
+
+        .exam-link {
+            font-weight: bold;
+            word-break: break-word;
+            color: #007bff;
+        }
+
+        .exam-paper {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .exam-paper ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .exam-paper li {
+            margin-bottom: 15px;
+        }
+
+        .download-btn {
+            margin-top: 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .download-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .exam-folder {
+            padding: 20px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid d-flex">
+        <!-- Sidebar -->
+        <div class="col-md-3 sidebar p-3">
+            <div class="back-button" onclick="goToLogin()">
+                <span class="arrow">&#8592;</span>
+            </div>
+            <h4 class="text-center text-warning">Question Manager</h4>
+            <button class="btn btn-primary folder-btn" data-bs-toggle="modal" data-bs-target="#addQuestionModal">Add Question</button>
+            <button class="btn btn-success folder-btn" data-bs-toggle="modal" data-bs-target="#generateExamModal">Generate Exam</button>
+            <div>
+                <h5 class="text-center text-white">Subject Folders</h5>
+                <ul class="folder-list" id="folderList">
+                    <!-- Folders will be dynamically populated -->
+                </ul>
+            </div>
+        </div>
+
+        <!-- Content Section -->
+        <div class="col-md-9 content">
+            <div class="card">
+                <div class="card-body">
+                    <h4>Questions for Selected Folder</h4>
+                    <div id="questionsContainer"></div>
+                    <div id="examPaper" class="exam-paper">
+                        <h4>Generated Exam</h4>
+                        <ul id="examQuestions"></ul>
+                        <button id="downloadExamBtn" class="download-btn">Download Exam</button>
+                    </div>
+                    <div class="exam-folder" id="examFolderSection">
+                        <h4>Generated Exams</h4>
+                        <ul id="examFolderList">
+                            <!-- Generated exams will be listed here -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Question Modal -->
+    <div class="modal fade" id="addQuestionModal" tabindex="-1" aria-labelledby="addQuestionModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addQuestionModalLabel">Add New Question</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addQuestionForm">
+                        <div class="mb-3">
+                            <label for="question" class="form-label">Question</label>
+                            <input type="text" class="form-control" id="question" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="option1" class="form-label">Option 1</label>
+                            <input type="text" class="form-control" id="option1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="option2" class="form-label">Option 2</label>
+                            <input type="text" class="form-control" id="option2" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="option3" class="form-label">Option 3</label>
+                            <input type="text" class="form-control" id="option3" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="option4" class="form-label">Option 4</label>
+                            <input type="text" class="form-control" id="option4" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="correctOption" class="form-label">Correct Option</label>
+                            <select class="form-control" id="correctOption" required>
+                                <option value="1">Option 1</option>
+                                <option value="2">Option 2</option>
+                                <option value="3">Option 3</option>
+                                <option value="4">Option 4</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="marks" class="form-label">Marks</label>
+                            <input type="number" class="form-control" id="marks" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Subject</label>
+                            <select class="form-control" id="subject" required>
+                                <option value="Java">Java</option>
+                                <option value="Python">Python</option>
+                                <option value="C">C</option>
+                                <option value="C++">C++</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Add Question</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generate Exam Modal -->
+    <div class="modal fade" id="generateExamModal" tabindex="-1" aria-labelledby="generateExamModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="generateExamModalLabel">Generate Exam</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="generateExamForm">
+                        <div class="mb-3">
+                            <label for="examName" class="form-label">Exam Name</label>
+                            <input type="text" class="form-control" id="examName" placeholder="Enter exam name" required>
+                        </div>
+                        <div id="subjectInputs">
+                            <!-- Subject Inputs -->
+                        </div>
+                        <div class="mb-3">
+                            <label for="numQuestions" class="form-label">Number of Questions</label>
+                            <input type="number" class="form-control" id="numQuestions" placeholder="Enter number of questions" required>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100 mt-3">Generate Exam</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function goToLogin() {
+            window.location.href = 'login.html';
+        }
+        const folders = {
+            Java: [],
+            Python: [],
+            C: [],
+            "C++": []
+        };
+
+        const generatedExams = [];
+
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]]; 
+            }
+        }
+
+        function populateFolders() {
+            const folderList = $("#folderList");
+            folderList.empty();
+            Object.keys(folders).forEach(folder => {
+                folderList.append(`
+                    <li class="folder-item" data-subject="${folder}">
+                        ${folder} (Questions: <span id="${folder}-count">${folders[folder].length}</span>)
+                    </li>
+                `);
+            });
+        }
+
+        populateFolders();
+
+        $("#addQuestionForm").on("submit", function (e) {
+            e.preventDefault();
+
+            const question = $("#question").val();
+            const options = [
+                $("#option1").val(),
+                $("#option2").val(),
+                $("#option3").val(),
+                $("#option4").val()
+            ];
+            const correctOption = $("#correctOption").val();
+            const marks = $("#marks").val();
+            const subject = $("#subject").val();
+
+            const newQuestion = {
+                question,
+                options,
+                correctOption,
+                marks
+            };
+
+            folders[subject].push(newQuestion);
+
+            $("#addQuestionForm")[0].reset();
+            $('#addQuestionModal').modal('hide');
+
+            populateFolders();
+        });
+
+        function displayQuestions(subject) {
+            const questionsContainer = $("#questionsContainer");
+            questionsContainer.empty();
+            const folderQuestions = folders[subject];
+            if (folderQuestions.length === 0) {
+                questionsContainer.append('<p>No questions in this folder.</p>');
+            } else {
+                folderQuestions.forEach((question, index) => {
+                    questionsContainer.append(`
+                        <div class="question-item">
+                            <p><strong>Q${index + 1}:</strong> ${question.question}</p>
+                            <ul>
+                                <li>Option 1: ${question.options[0]}</li>
+                                <li>Option 2: ${question.options[1]}</li>
+                                <li>Option 3: ${question.options[2]}</li>
+                                <li>Option 4: ${question.options[3]}</li>
+                            </ul>
+                        </div>
+                    `);
+                });
+            }
+        }
+
+        $(document).on("click", ".folder-item", function () {
+            const subject = $(this).data("subject");
+            displayQuestions(subject);
+        });
+
+        function generateExam() {
+            const examName = $("#examName").val();
+            const numQuestions = parseInt($("#numQuestions").val());
+            const selectedSubjects = $("#generateExamForm")
+                .serializeArray()
+                .filter(field => field.name.startsWith('subject'))
+                .map(field => field.value);
+
+            const examQuestions = [];
+
+            selectedSubjects.forEach(subject => {
+                const folderQuestions = folders[subject];
+                shuffleArray(folderQuestions);
+                const examQuestionsForSubject = folderQuestions.slice(0, Math.min(numQuestions, folderQuestions.length)); // Ensure not more than available questions
+                examQuestions.push(...examQuestionsForSubject);
+            });
+
+            generatedExams.push({ examName, questions: examQuestions });
+
+            localStorage.setItem('generatedExams', JSON.stringify(generatedExams));
+            $('#generateExamModal').modal('hide');
+            displayGeneratedExams();
+        }
+
+        function displayGeneratedExams() {
+            const examFolderList = $("#examFolderList");
+            examFolderList.empty();
+
+            generatedExams.forEach((exam, index) => {
+                examFolderList.append(`
+                    <li class="exam-link" data-index="${index}">${exam.examName}</li>
+                `);
+            });
+        }
+
+        $(document).on("click", ".exam-link", function () {
+            const examIndex = $(this).data("index");
+            const exam = generatedExams[examIndex];
+
+            const examQuestions = $("#examQuestions");
+            examQuestions.empty();
+            exam.questions.forEach((question, index) => {
+                examQuestions.append(`
+                    <li><strong>Q${index + 1}:</strong> ${question.question}</li>
+                `);
+            });
+
+            $("#examPaper").show();
+        });
+
+        $("#generateExamForm").on("submit", function (e) {
+            e.preventDefault();
+            generateExam();
+        });
+
+        // Populate subjects dynamically for exam generation
+        function populateSubjectInputs() {
+            const subjectInputs = $("#subjectInputs");
+            const subjects = Object.keys(folders);
+            subjects.forEach(subject => {
+                subjectInputs.append(`
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="${subject}" id="subject-${subject}">
+                        <label class="form-check-label" for="subject-${subject}">
+                            ${subject}
+                        </label>
+                    </div>
+                `);
+            });
+        }
+
+        populateSubjectInputs();
+    </script>
+</body>
+</html>
